@@ -1,1 +1,49 @@
-foo
+<meta charset="utf-8">
+<title>தென்றல் - Thendral transpiler</title>
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: row;
+        column-gap: 10px;
+        height: 90%;
+        align-content: center;
+        justify-content: center;
+
+    }
+
+    .textarea {
+        height: 100%;
+        flex-grow: 0.4;
+    }
+
+    .description {
+        flex-grow: 0.4;
+    }
+
+</style>
+
+<div class="container">
+    <textarea class="textarea"></textarea>
+    <textarea class="textarea"></textarea>
+    <textarea class="textarea"></textarea>
+</div>
+<div class="container">
+    <p class="description">Thendral</p>
+    <p class="description">Translated JS Code</p>
+    <p class="description">Output</p>
+</div>
+
+<script data-main="scripts/thendral" src="scripts/require.js"></script>
+<script>
+
+    window.addEventListener("load", () => {
+
+        window.thendral = require("Transpiler").thendral
+
+
+
+
+    })
+
+</script>
