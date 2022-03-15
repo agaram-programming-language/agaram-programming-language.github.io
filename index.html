@@ -1,7 +1,14 @@
 <meta charset="utf-8">
 <title>தென்றல் - Thendral transpiler</title>
-
+<head>
+    <script src="scripts/require.js"></script>
+</head>
 <style>
+
+    body {
+        background-color: rgba(0,0,0,0.8);
+        color: white;
+    }
     .container {
         display: flex;
         flex-direction: row;
@@ -24,9 +31,9 @@
 </style>
 
 <div class="container">
-    <textarea class="textarea"></textarea>
-    <textarea class="textarea"></textarea>
-    <textarea class="textarea"></textarea>
+    <textarea class="textarea" id="thendral-code"></textarea>
+    <textarea class="textarea" id="translated-code"></textarea>
+    <textarea class="textarea" id="output"></textarea>
 </div>
 <div class="container">
     <p class="description">Thendral</p>
@@ -34,15 +41,40 @@
     <p class="description">Output</p>
 </div>
 
-<script data-main="scripts/thendral" src="scripts/require.js"></script>
+
 <script>
 
+    function translate() {
+        const thendralCode = document.getElementById("thendral-code").value
+
+        const jsCode =  window.thendral(thendralCode).code;
+
+        document.getElementById("translated-code")
+            .value = jsCode
+        const output = eval(jsCode);
+
+        document.getElementById("output")
+            .value = output
+    }
+
     window.addEventListener("load", () => {
+        require(["Transpiler"], (Transpiler) => {
+            window.thendral  =  Transpiler.thendral
+        })
 
-        window.thendral = require("Transpiler").thendral
+        document.getElementById("thendral-code")
+        .addEventListener("keydown", (event) => {
+            translate();
+        })
 
-
-
+        document.getElementById("thendral-code")
+            .addEventListener("keypress", (event) => {
+                translate();
+            })
+        document.getElementById("thendral-code")
+            .addEventListener("keyup", (event) => {
+                translate();
+            })
 
     })
 
