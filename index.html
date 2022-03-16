@@ -1,19 +1,58 @@
 <meta charset="utf-8">
 <title>தென்றல் - Thendral transpiler</title>
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.js"></script>
+
     <script src="scripts/require.js"></script>
 </head>
+
 <style>
 
     body {
-        background-color: rgba(0,0,0,0.8);
+        margin: 0;
+        padding: 0;
+    }
+
+    a {
         color: white;
     }
+
+    .program-bar {
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+    }
+
+    .navigation-bar {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        background-color: #005cf8;
+        padding: 5px;
+        position: sticky;
+
+        color: #fff;
+    }
+
+    body {
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+    }
+
     .container {
         display: flex;
         flex-direction: row;
         column-gap: 10px;
-        height: 90%;
+        height: 70%;
+        align-content: center;
+        justify-content: center;
+
+    }
+
+    .description-container {
+        display: flex;
+        flex-direction: row;
+        column-gap: 10px;
         align-content: center;
         justify-content: center;
 
@@ -22,50 +61,113 @@
     .textarea {
         height: 100%;
         flex-grow: 0.4;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 20px;
     }
 
     .description {
         flex-grow: 0.4;
     }
 
+    .program-bar {
+        padding: 20px;
+        background-color: #005cf8;
+        display: flex;
+        flex-direction: row;
+        column-gap: 10px;
+        row-gap: 10px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .program {
+
+        border: 1px solid white;
+        border-radius: 10px;
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    .second-column {
+        font-size: 20px;
+    }
+
 </style>
 
-<div class="container">
-    <textarea class="textarea" id="thendral-code"></textarea>
-    <textarea class="textarea" id="translated-code"></textarea>
-    <textarea class="textarea" id="output"></textarea>
+<body>
+<div class="navigation-bar">
+    <h1>தென்றல் - javascript transpiler</h1>
+    <div class="second-column">
+        <p>version: 0.0.1</p>
+        <p>நிரலர்: <a href="https://github.com/naveen17797">நவீன்</a></p>
+        <p><a href="https://github.com/naveen17797">Get source code</a></p>
+    </div>
 </div>
 <div class="container">
+    <textarea class="textarea" id="thendral-code"></textarea>
+    <textarea class="textarea" id="translated-code" readonly></textarea>
+    <textarea class="textarea" id="output" readonly></textarea>
+</div>
+<div class="description-container">
     <p class="description">Thendral</p>
     <p class="description">Translated JS Code</p>
     <p class="description">Output</p>
 </div>
-
+<div class="program-bar">
+    <div class="program" data-program-id="hello-world">Hello World</div>
+    <div class="program" data-program-id="variable-declaration">Variable declaration</div>
+    <div class="program" data-program-id="if-loop">If loop</div>
+    <div class="program" data-program-id="while-loop">While loop</div>
+    <div class="program" data-program-id="function-declaration">Function Declaration</div>
+    <div class="program" data-program-id="sum-of-two-numbers">Sum of two numbers</div>
+    <div class="program" data-program-id="print-even-numbers">Print even numbers</div>
+</div>
+</body>
 
 <script>
 
+
+    var outputBuffer = ""
+
     function translate() {
+
+        outputBuffer = ""
         const thendralCode = document.getElementById("thendral-code").value
 
-        const jsCode =  window.thendral(thendralCode).code;
+        const jsCode = js_beautify(window.thendral(thendralCode).code);
 
         document.getElementById("translated-code")
             .value = jsCode
-        const output = eval(jsCode);
 
-        document.getElementById("output")
-            .value = output
+        try {
+            const output = eval(jsCode);
+            document.getElementById("output")
+                .value = output
+        }
+        catch (e) {
+            document.getElementById("output")
+                .value = e.message
+        }
+
+    }
+
+    function thendralPrint(value) {
+
+        outputBuffer = outputBuffer + "\n" + value
+        return outputBuffer
     }
 
     window.addEventListener("load", () => {
         require(["Transpiler"], (Transpiler) => {
-            window.thendral  =  Transpiler.thendral
+            window.thendral = Transpiler.thendral
         })
 
         document.getElementById("thendral-code")
-        .addEventListener("keydown", (event) => {
-            translate();
-        })
+            .addEventListener("keydown", (event) => {
+                translate();
+            })
 
         document.getElementById("thendral-code")
             .addEventListener("keypress", (event) => {
@@ -76,6 +178,28 @@
                 translate();
             })
 
+        const divs = document.querySelectorAll('.program');
+
+        const programMap =   {
+            "hello-world": `எழுது 'வணக்கம் உலகம்'`,
+            "variable-declaration": `நிலையற்ற a = 2`,
+            "if-loop": `நிலையற்ற a = 2\nஒருவேளை( a > 1 ) {\nஎழுது 'a is greater than 1'\n }\nஇல்லையென்றால்(சரி) { }\nஎதுவும்இல்லையென்றால் {}`,
+            "while-loop": `நிலையற்ற a = 2\nஇருப்பின்வளையம்(a < 10) {\n a = a + 2 \n}\nஎழுது a`,
+            "function-declaration": `செயல்பாடு கூட்டல்(அ,ஆ) {\n திருப்பு அ + ஆ \n}\n எழுது கூட்டல்(1,2)`,
+            "sum-of-two-numbers": `எழுது 1 + 4`,
+            "print-even-numbers": `நிலையற்ற a = 2\nஇருப்பின்வளையம்(a < 10) {\n a = a + 2 \n எழுது a \n}`
+
+        }
+
+
+        divs.forEach(el => el.addEventListener('click', event => {
+            document.getElementById("thendral-code").value = programMap[event.target.getAttribute("data-program-id")];
+            translate()
+        }));
+
     })
 
 </script>
+
+
+
